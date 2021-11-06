@@ -1,0 +1,36 @@
+{
+  "background": {
+    "scripts": [
+      "js/background.js"
+    ]
+  },
+  "content_scripts" : [{
+      "js": [
+        "js/lazy.js"
+      ],
+      "matches": [ "<all_urls>"],
+      "run_at": "document_start"
+  }],
+  "description": "Load images lazily",
+  "icons": {
+    "48": "res/sloth.png"
+  },
+  "manifest_version": 2,
+  "name": "Lazy Image Loader",
+  "page_action": {
+    "default_icon": {
+      "48": "res/sloth.png"
+    },
+    "default_popup": "res/popup.html"
+  },
+  "permissions": [
+    "<all_urls>",
+    "storage",
+    "webRequest",
+    "webRequestBlocking"
+  ],
+  "version": "1.0",
+  "web_accessible_resources": [
+    "res/placeholder.png"
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "name": "lazy-image-loader-ts",
+  "version": "1.0.0",
+  "description": "Lazy Image Loader browser extension",
+  "author": "Jeenu Viswambharan",
+  "license": "ISC",
+  "devDependencies": {
+    "esbuild": "^0.13.12",
+    "prettier": "^2.4.1",
+    "typescript": "^4.5.2"
+  }
+}

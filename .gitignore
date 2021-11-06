@@ -1,0 +1,7 @@
+.bundled
+.compiled
+.prettified
+node_modules/
+js/
+bundle/
+firefox/
