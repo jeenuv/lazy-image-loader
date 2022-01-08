@@ -7,7 +7,7 @@ keeping Ctrl+Alt pressed.
 
 Works for
 [Firefox](https://addons.mozilla.org/en-US/firefox/addon/lazy-image-loader) and
-Chrome.
+[Chrome](https://chrome.google.com/webstore/detail/lazy-image-loader/ioiepeflnpgjmlngjjedadabagckkhda).
 
 See the screen shot below for the extension in action.
 
