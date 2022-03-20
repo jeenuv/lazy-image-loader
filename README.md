@@ -6,7 +6,7 @@ later be displayed selectively by hovering over the blocked image whilst
 keeping Ctrl+Alt pressed.
 
 Works for
-[Firefox](https://addons.mozilla.org/en-US/firefox/addon/lazy-image-loader) and
+[Firefox](https://addons.mozilla.org/firefox/addon/lazy-image-loader) and
 [Chrome](https://chrome.google.com/webstore/detail/lazy-image-loader/ioiepeflnpgjmlngjjedadabagckkhda).
 
 See the screen shot below for the extension in action.
