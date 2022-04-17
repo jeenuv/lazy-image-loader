@@ -5,6 +5,7 @@
     ]
   },
   "content_scripts" : [{
+      "all_frames": true,
       "js": [
         "js/lazy.js"
       ],
