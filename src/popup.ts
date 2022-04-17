@@ -13,6 +13,11 @@ function readyPage(stat: PopupStatus): void {
 
   pageContent.style.display = "block";
   siteCheckbox.disabled = !stat.extensionEnabled;
+
+  document.getElementById("num-blocked")!.innerText =
+    stat.numBlocked.toString();
+  document.getElementById("num-allowed")!.innerText =
+    stat.numAllowed.toString();
 }
 
 window.addEventListener("load", async () => {

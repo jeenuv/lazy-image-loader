@@ -18,9 +18,13 @@ let allowedDomains = new Set<string>();
 let options: Options;
 const defaultOptions: Options = {allowedDomains: [], extensionEnabled: true};
 
+let numBlocked = 0;
+let numAllowed = 0;
+
 function imageListener(details: Tab): RedirectSpec | null {
   // If the request is from an allowed tab, don't block it.
   if (details.tabId === -1 || allowedTabs.has(details.tabId)) {
+    numAllowed++;
     return null;
   }
 
@@ -30,6 +34,7 @@ function imageListener(details: Tab): RedirectSpec | null {
   }
 
   // Redirect everything else to the placeholder image
+  numBlocked++;
   return {redirectUrl: placeHolderUrl};
 }
 
@@ -149,6 +154,7 @@ function messageListener(
     // Content script request to fetch image, and return its contents as bas64.
     case "fetch": {
       console.log("Lazy loader: fetching " + message.payload);
+      numAllowed++;
       let ffRet = new Promise(async (res, rej) => {
         let resp = await fetch(message.payload);
         let blob = await resp.blob();
@@ -182,6 +188,8 @@ function messageListener(
         let result = {
           extensionEnabled: options.extensionEnabled,
           siteEnabled: allowedTabs.has(tab.id),
+          numAllowed,
+          numBlocked,
         };
 
         // As "fetch" above

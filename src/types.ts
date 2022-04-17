@@ -28,6 +28,8 @@ export type Message =
 export type PopupStatus = {
   extensionEnabled: boolean;
   siteEnabled: boolean;
+  numAllowed: number;
+  numBlocked: number;
 };
 
 export interface Options {
