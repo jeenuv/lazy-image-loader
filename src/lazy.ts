@@ -11,6 +11,20 @@ import {
 
 let browser = getBrowserObject();
 
+function getSrc(img: LazyImg): string | null {
+  let src: string | null = null;
+  if (img.src !== "") {
+    src = img.src;
+  } else if (img.srcset) {
+    let sources = img.srcset.split(",").map(s => s.split(" ")[0]);
+    if (sources.length > 0) {
+      src = sources[0];
+    }
+  }
+
+  return src;
+}
+
 async function lazyLoad(e: MouseEvent) {
   // Look for images under mouse pointer
   let under = document.elementsFromPoint(e.clientX, e.clientY);
@@ -21,12 +35,19 @@ async function lazyLoad(e: MouseEvent) {
     }
 
     if (img.lazyLoadStatus) {
-      break;
+      return;
     }
 
+    let originalUrl = getSrc(img);
+    if (originalUrl === null) {
+      console.log("lazy: image has no src or srcset");
+      return;
+    }
+
+    // Mark this as being loaded so as to avoid duplicate requests
     img.lazyLoadStatus = "requested";
 
-    let originalUrl = img.src;
+    img.src = loadingImage;
 
     function loadImage(base64: string) {
       img.src = base64;
@@ -44,7 +65,7 @@ async function lazyLoad(e: MouseEvent) {
       // Mark the image as loaded, and we don't need the mousesover handler
       // anymore.
       img.lazyLoadStatus = "loaded";
-      img.style.zIndex = img.lazyZIndex;
+
       console.log("lazy: loaded", originalUrl);
     }
 
@@ -58,8 +79,7 @@ async function lazyLoad(e: MouseEvent) {
     //
     // However, before initiating the loading of the original image, as a visual
     // cue to the user that it's being loaded, we display the "loading" image.
-    let msg: Message = {header: "fetch", payload: img.src};
-    img.src = loadingImage;
+    let msg: Message = {header: "fetch", payload: originalUrl};
     console.log("lazy: requesting to load", originalUrl);
 
     if (isChrome(browser)) {
@@ -71,7 +91,7 @@ async function lazyLoad(e: MouseEvent) {
 
     // img elements are not containers, so once we found one, we don't need to
     // look for further imgs up the chain.
-    break;
+    return;
   }
 }
 

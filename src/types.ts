@@ -39,5 +39,4 @@ export interface Options {
 
 export interface LazyImg extends HTMLImageElement {
   lazyLoadStatus: string;
-  lazyZIndex: string;
 }
