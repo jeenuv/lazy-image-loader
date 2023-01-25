@@ -1,13 +1,5 @@
 import {LazyImg, Message} from "./types";
-import {
-  isChrome,
-  isFirefox,
-  Tab,
-  TabChgInfo,
-  RedirectSpec,
-  Sender,
-  getBrowserObject,
-} from "./browser";
+import {isChrome, isFirefox, getBrowserObject} from "./browser";
 
 let browser = getBrowserObject();
 
@@ -162,7 +154,9 @@ window.addEventListener("DOMContentLoaded", () => {
   });
 
   document.addEventListener("keyup", e => {
-    if (!(e.ctrlKey && e.altKey)) unregisterMouse();
+    if (!(e.ctrlKey && e.altKey)) {
+      unregisterMouse();
+    }
   });
 
   // Send an online message to background script
@@ -171,3 +165,5 @@ window.addEventListener("DOMContentLoaded", () => {
 
 // Register message handler
 browser.runtime.onMessage.addListener(messageHandler);
+
+// vim: set tw=80:

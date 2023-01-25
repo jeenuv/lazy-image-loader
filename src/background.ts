@@ -151,7 +151,7 @@ function messageListener(
 ) {
   console.log("Received message: ", message);
   switch (message.header) {
-    // Content script request to fetch image, and return its contents as bas64.
+    // Content script request to fetch image, and return its contents as base64.
     case "fetch": {
       console.log("Lazy loader: fetching " + message.payload);
       numAllowed++;
@@ -350,3 +350,5 @@ async function backgroundInit() {
 }
 
 backgroundInit();
+
+// vim: set tw=80:

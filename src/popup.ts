@@ -50,3 +50,5 @@ window.addEventListener("load", async () => {
     readyPage(response);
   }
 });
+
+// vim: set tw=80:
