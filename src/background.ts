@@ -21,6 +21,8 @@ const defaultOptions: Options = {allowedDomains: [], extensionEnabled: true};
 let numBlocked = 0;
 let numAllowed = 0;
 
+let suffixableDomains = new Set(["co", "gov"]);
+
 function imageListener(details: Tab): RedirectSpec | null {
   // If the request is from an allowed tab, don't block it.
   if (details.tabId === -1 || allowedTabs.has(details.tabId)) {
@@ -76,7 +78,8 @@ function urlToDomain(url: string | null): string | null {
   }
 
   let hostComps = comp[2].split(".").reverse();
-  let last = hostComps.length >= 3 && hostComps[1] === "co" ? 3 : 2;
+  let last =
+    hostComps.length >= 3 && suffixableDomains.has(hostComps[1]) ? 3 : 2;
 
   return hostComps.slice(0, last).reverse().join(".");
 }
