@@ -23,11 +23,16 @@ export type Message =
   | {
       header: "site-enable";
       payload: boolean;
+    }
+  | {
+      header: "tab-enable";
+      payload: boolean;
     };
 
 export type PopupStatus = {
   extensionEnabled: boolean;
   siteEnabled: boolean;
+  tabEnabled: boolean;
   numAllowed: number;
   numBlocked: number;
 };

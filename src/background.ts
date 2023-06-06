@@ -15,6 +15,9 @@ const placeHolderUrl = browser.runtime.getURL("res/placeholder.png");
 let allowedTabs = new Set<number>();
 let allowedDomains = new Set<string>();
 
+// Tab IDs that were individually overridden, unrelated to filtering by domain.
+let overriddenTabs = new Set<number>();
+
 let options: Options;
 const defaultOptions: Options = {allowedDomains: [], extensionEnabled: true};
 
@@ -25,7 +28,11 @@ let suffixableDomains = new Set(["co", "gov"]);
 
 function imageListener(details: Tab): RedirectSpec | null {
   // If the request is from an allowed tab, don't block it.
-  if (details.tabId === -1 || allowedTabs.has(details.tabId)) {
+  if (
+    details.tabId === -1 ||
+    allowedTabs.has(details.tabId) ||
+    overriddenTabs.has(details.tabId)
+  ) {
     numAllowed++;
     return null;
   }
@@ -42,7 +49,11 @@ function imageListener(details: Tab): RedirectSpec | null {
 
 // Update pageAction icon based on tab ID
 function updateTabIcon(tabId: number) {
-  let tabDenied = options.extensionEnabled && !allowedTabs.has(tabId);
+  let tabDenied =
+    options.extensionEnabled &&
+    !allowedTabs.has(tabId) &&
+    !overriddenTabs.has(tabId);
+
   if (tabDenied) {
     browser.pageAction.setIcon({
       tabId: tabId,
@@ -146,7 +157,7 @@ async function getCurrentTab(): Promise<Tab> {
 // Chrome's message handler closes the port as soon as the handler return a
 // value. If this were an async function, it'll always return promise object. To
 // prevent that, this is written as a normal function, and .then/.catch are used
-// at the top-leve instead.
+// at the top-level instead.
 function messageListener(
   message: Message,
   sender: Sender,
@@ -191,6 +202,7 @@ function messageListener(
         let result = {
           extensionEnabled: options.extensionEnabled,
           siteEnabled: allowedTabs.has(tab.id),
+          tabEnabled: overriddenTabs.has(tab.id),
           numAllowed,
           numBlocked,
         };
@@ -232,6 +244,21 @@ function messageListener(
       getCurrentTab().then(tab => siteEnableChanged(tab, message.payload));
       break;
     }
+
+    case "tab-enable": {
+      getCurrentTab().then(tab => tabEnableChanged(tab, message.payload));
+      break;
+    }
+  }
+}
+
+function tabEnableChanged(tab: Tab, allow: boolean) {
+  if (allow) {
+    overriddenTabs.add(tab.id);
+    console.log(`Allowing tab ${tab.id}`);
+  } else {
+    overriddenTabs.delete(tab.id);
+    console.log(`Disallowing tab ${tab.id}`);
   }
 }
 
@@ -323,9 +350,10 @@ async function backgroundInit() {
   browser.runtime.onMessage.addListener(messageListener);
 
   // When a tab is removed, remove that from the allowed set as well.
-  browser.tabs.onRemoved.addListener((tabId: number) =>
-    allowedTabs.delete(tabId)
-  );
+  browser.tabs.onRemoved.addListener((tabId: number) => {
+    allowedTabs.delete(tabId);
+    overriddenTabs.delete(tabId);
+  });
 
   // Build a set of allowed domains from local store, if it exists.
   let ret = await getLocalStorage();

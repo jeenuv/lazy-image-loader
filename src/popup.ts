@@ -5,14 +5,17 @@ let browser = getBrowserObject();
 
 let extensionCheckbox: HTMLInputElement;
 let siteCheckbox: HTMLInputElement;
+let tabCheckbox: HTMLInputElement;
 let pageContent: HTMLElement;
 
 function readyPage(stat: PopupStatus): void {
   extensionCheckbox.checked = stat.extensionEnabled;
   siteCheckbox.checked = stat.siteEnabled;
+  tabCheckbox.checked = stat.tabEnabled;
 
   pageContent.style.display = "block";
   siteCheckbox.disabled = !stat.extensionEnabled;
+  tabCheckbox.disabled = !stat.extensionEnabled;
 
   document.getElementById("num-blocked")!.innerText =
     stat.numBlocked.toString();
@@ -25,6 +28,7 @@ window.addEventListener("load", async () => {
     "extension-enable"
   ) as HTMLInputElement;
   siteCheckbox = document.getElementById("site-enable") as HTMLInputElement;
+  tabCheckbox = document.getElementById("tab-enable") as HTMLInputElement;
   pageContent = document.getElementById("page-content")!;
 
   extensionCheckbox.addEventListener("click", () => {
@@ -39,6 +43,11 @@ window.addEventListener("load", async () => {
 
   siteCheckbox.addEventListener("click", e => {
     let msg: Message = {header: "site-enable", payload: siteCheckbox.checked};
+    browser.runtime.sendMessage(msg);
+  });
+
+  tabCheckbox.addEventListener("click", e => {
+    let msg: Message = {header: "tab-enable", payload: tabCheckbox.checked};
     browser.runtime.sendMessage(msg);
   });
 
