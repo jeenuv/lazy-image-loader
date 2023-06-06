@@ -36,7 +36,3 @@ export interface Options {
   allowedDomains: string[];
   extensionEnabled: boolean;
 }
-
-export interface LazyImg extends HTMLImageElement {
-  lazyLoadStatus: string;
-}

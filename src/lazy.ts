@@ -1,9 +1,9 @@
-import {LazyImg, Message} from "./types";
+import {Message} from "./types";
 import {isChrome, isFirefox, getBrowserObject} from "./browser";
 
 let browser = getBrowserObject();
 
-function getSrc(img: LazyImg): string | null {
+function getSrc(img: HTMLImageElement): string | null {
   let src: string | null = null;
   if (img.src !== "") {
     src = img.src;
@@ -21,23 +21,21 @@ async function lazyLoad(e: MouseEvent) {
   // Look for images under mouse pointer
   let under = document.elementsFromPoint(e.clientX, e.clientY);
   for (let i = 0; i < under.length; i++) {
-    let img = under[i] as LazyImg;
+    let img = under[i] as HTMLImageElement;
     if (img.tagName !== "IMG") {
+      console.log("lazy: image has already loaded");
       continue;
     }
 
-    if (img.lazyLoadStatus) {
+    if (img.src.startsWith("data:")) {
       return;
     }
 
     let originalUrl = getSrc(img);
     if (originalUrl === null) {
-      console.log("lazy: image has no src or srcset");
+      console.warn("lazy: image has no src or srcset");
       return;
     }
-
-    // Mark this as being loaded so as to avoid duplicate requests
-    img.lazyLoadStatus = "requested";
 
     img.src = loadingImage;
 
@@ -53,10 +51,6 @@ async function lazyLoad(e: MouseEvent) {
       if (picture) {
         picture.querySelectorAll("source").forEach(src => src.remove());
       }
-
-      // Mark the image as loaded, and we don't need the mousesover handler
-      // anymore.
-      img.lazyLoadStatus = "loaded";
 
       console.log("lazy: loaded", originalUrl);
     }
