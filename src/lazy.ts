@@ -1,10 +1,15 @@
-import {Message} from "./types";
+import {LazyImg, Message} from "./types";
 import {isChrome, isFirefox, getBrowserObject} from "./browser";
 
 let browser = getBrowserObject();
 
-function getSrc(img: HTMLImageElement): string | null {
+function getSrc(img: LazyImg): string | null {
   let src: string | null = null;
+
+  if (img.originalUrl) {
+    return img.originalUrl;
+  }
+
   if (img.src !== "") {
     src = img.src;
   } else if (img.srcset) {
@@ -14,6 +19,10 @@ function getSrc(img: HTMLImageElement): string | null {
     }
   }
 
+  if (src) {
+    img.originalUrl = src;
+  }
+
   return src;
 }
 
@@ -21,13 +30,13 @@ async function lazyLoad(e: MouseEvent) {
   // Look for images under mouse pointer
   let under = document.elementsFromPoint(e.clientX, e.clientY);
   for (let i = 0; i < under.length; i++) {
-    let img = under[i] as HTMLImageElement;
+    let img = under[i] as LazyImg;
     if (img.tagName !== "IMG") {
-      console.log("lazy: image has already loaded");
       continue;
     }
 
-    if (img.src.startsWith("data:")) {
+    if (img.src.startsWith("data:") && img.src !== loadingImage) {
+      console.log("lazy: image has already loaded");
       return;
     }
 
@@ -35,6 +44,15 @@ async function lazyLoad(e: MouseEvent) {
     if (originalUrl === null) {
       console.warn("lazy: image has no src or srcset");
       return;
+    }
+
+    if (img.requestedAt) {
+      if (img.requestedAt > (new Date().getTime() - 2000)) {
+        console.log(
+          "lazy: not requesting again until after 2s has elapsed since last request"
+        );
+        return;
+      }
     }
 
     img.src = loadingImage;
@@ -66,6 +84,7 @@ async function lazyLoad(e: MouseEvent) {
     // However, before initiating the loading of the original image, as a visual
     // cue to the user that it's being loaded, we display the "loading" image.
     let msg: Message = {header: "fetch", payload: originalUrl};
+    img.requestedAt = new Date().getTime();
     console.log("lazy: requesting to load", originalUrl);
 
     if (isChrome(browser)) {

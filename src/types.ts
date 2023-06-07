@@ -41,3 +41,8 @@ export interface Options {
   allowedDomains: string[];
   extensionEnabled: boolean;
 }
+
+export interface LazyImg extends HTMLImageElement {
+  originalUrl?: string;
+  requestedAt?: number;
+}

@@ -30,7 +30,7 @@
     "webRequest",
     "webRequestBlocking"
   ],
-  "version": "4",
+  "version": "5",
   "web_accessible_resources": [
     "res/placeholder.png"
   ]
