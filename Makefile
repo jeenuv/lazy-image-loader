@@ -3,8 +3,8 @@ realpath_cmd = $(shell realpath -m --relative-to $1 $2)
 bundle_cmd = npx esbuild --log-level=warning --bundle --outfile=$(call realpath_cmd,js,$1) $(call realpath_cmd,js,$2)
 
 manifest := manifest.json
-name := $(shell jq -r .name < $(manifest) | awk '{print tolower(gensub(" ", "-", "g"))}')
-pkg := $(name)-$(shell jq -r .version < $(manifest))
+name := $(shell jq -r '.name|ascii_downcase|gsub(" ";"-")' $(manifest))
+pkg := $(name)-$(shell jq -r .version $(manifest))
 
 compiled := .compiled
 bundled := .bundled
