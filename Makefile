@@ -35,7 +35,7 @@ $(pkg)/res/%: res/% | $(pkg)/res
 $(pkg)/$(manifest): $(manifest) | $(pkg)
 	cp $< $@
 
-$(js_srcs): $(compiled)
+js/%.js: $(compiled) ;
 
 $(compiled): $(ts_srcs)
 	npx tsc
