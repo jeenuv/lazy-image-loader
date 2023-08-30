@@ -37,6 +37,12 @@ async function lazyLoad(e: MouseEvent) {
 
     if (img.src.startsWith("data:") && img.src !== loadingImage) {
       console.log("lazy: image has already loaded");
+
+      // The srcset attribute, if present on the node--in case it's re-added by
+      // page's JS--seems to take precence over src. So, remove the srcset
+      // attribute.
+      img.removeAttribute("srcset");
+
       return;
     }
 
@@ -56,12 +62,10 @@ async function lazyLoad(e: MouseEvent) {
     }
 
     img.src = loadingImage;
+    img.removeAttribute("srcset");
 
     function loadImage(base64: string) {
       img.src = base64;
-
-      // srcset seems to have higher priority that src, so remove them
-      img.removeAttribute("srcset");
 
       // If the img is contained within a picture element, the source siblings
       // seem to have priority. So remove them too.
