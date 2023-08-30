@@ -37,7 +37,7 @@ $(pkg)/$(manifest): $(manifest) | $(pkg)
 
 js/%.js: $(compiled) ;
 
-$(compiled): $(ts_srcs)
+$(compiled): $(ts_srcs) $(prettified)
 	npx tsc
 	touch $@
 

@@ -46,3 +46,8 @@ export interface LazyImg extends HTMLImageElement {
   originalUrl?: string;
   requestedAt?: number;
 }
+
+export interface LazyElement extends HTMLElement {
+  originalUrl?: string;
+  requestedAt?: number;
+}

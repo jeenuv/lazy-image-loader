@@ -79,6 +79,7 @@ function updateTabIcon(tabId: number) {
 }
 
 // scheme://foo.bar.com/baz => bar.com
+// scheme://foo.bar.co.in/baz => bar.co.in
 function urlToDomain(url: string | null): string | null {
   if (!url) {
     return null;

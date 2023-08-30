@@ -1,7 +1,8 @@
-import {LazyImg, Message} from "./types";
+import {LazyImg, LazyElement, Message} from "./types";
 import {isChrome, isFirefox, getBrowserObject} from "./browser";
 
 let browser = getBrowserObject();
+const RETRY_TOLERANCE_MS = 3000;
 
 function getSrc(img: LazyImg): string | null {
   let src: string | null = null;
@@ -22,9 +23,8 @@ function getSrc(img: LazyImg): string | null {
   return src;
 }
 
-async function lazyLoad(e: MouseEvent) {
-  // Look for images under mouse pointer
-  let under = document.elementsFromPoint(e.clientX, e.clientY);
+// Lazily load the src of an img element
+async function lazyLoadImage(under: Element[]): Promise<boolean> {
   for (let i = 0; i < under.length; i++) {
     let img = under[i] as LazyImg;
     if (img.tagName.toLowerCase() !== "img") {
@@ -32,14 +32,14 @@ async function lazyLoad(e: MouseEvent) {
     }
 
     if (img.src.startsWith("data:") && img.src !== loadingImage) {
-      console.log("lazy: image has already loaded");
+      console.log("lazy: image has already been loaded");
 
       // The srcset attribute, if present on the node--in case it's re-added by
       // page's JS--seems to take precence over src. So, remove the srcset
       // attribute.
       img.removeAttribute("srcset");
 
-      return;
+      return true;
     }
 
     let originalUrl = getSrc(img);
@@ -64,11 +64,13 @@ async function lazyLoad(e: MouseEvent) {
     }
 
     if (img.requestedAt) {
-      if (img.requestedAt > (new Date().getTime() - 2000)) {
+      if (img.requestedAt > new Date().getTime() - RETRY_TOLERANCE_MS) {
         console.log(
-          "lazy: not requesting again until after 2s has elapsed since last request"
+          `lazy: waiting for ${
+            RETRY_TOLERANCE_MS / 1000
+          }s before requesting image again`
         );
-        return;
+        return true;
       }
     }
 
@@ -111,7 +113,75 @@ async function lazyLoad(e: MouseEvent) {
 
     // img elements are not containers, so once we found one, we don't need to
     // look for further imgs up the chain.
+    return true;
+  }
+
+  return false;
+}
+
+// Lazily load the backgroundImage of any element
+async function lazyLoadBackground(under: Element[]) {
+  for (let i = 0; i < under.length; i++) {
+    let element = under[i] as LazyElement;
+    let cs = window.getComputedStyle(element);
+    let bi = cs.backgroundImage;
+    if (!(bi && bi.startsWith("url(") && bi.endsWith(")"))) {
+      continue;
+    }
+
+    let url = bi.slice(5, -2);
+    if (url.startsWith("data:")) {
+      continue;
+    }
+
+    if (element.requestedAt) {
+      if (element.requestedAt > new Date().getTime() - RETRY_TOLERANCE_MS) {
+        console.log(
+          `lazy: waiting for ${
+            RETRY_TOLERANCE_MS / 1000
+          }s before requesting background image again`
+        );
+        continue;
+      }
+    }
+
+    element.originalUrl = url;
+    element.style.setProperty(
+      "background-image",
+      `url(${loadingImage})`,
+      "important"
+    );
+
+    function loadBackgroundImage(base64: string) {
+      element.style.setProperty(
+        "background-image",
+        `url(${base64})`,
+        "important"
+      );
+      console.log("lazy: loaded background image", url);
+    }
+
+    let msg: Message = {header: "fetch", payload: url};
+    element.requestedAt = new Date().getTime();
+    console.log("lazy: requesting to load background image", url);
+
+    if (isChrome(browser)) {
+      browser.runtime.sendMessage(msg, loadBackgroundImage);
+    } else if (isFirefox(browser)) {
+      let url = await browser.runtime.sendMessage(msg);
+      loadBackgroundImage(url);
+    }
+
     return;
+  }
+}
+
+async function lazyLoad(e: MouseEvent) {
+  // Look for images under mouse pointer
+  let under = document.elementsFromPoint(e.clientX, e.clientY);
+
+  if (!(await lazyLoadImage(under))) {
+    await lazyLoadBackground(under);
   }
 }
 
