@@ -4,7 +4,7 @@ import {Message, Options} from "./types";
 
 export type RedirectFunc = (d: WebReqDetail) => RedirectSpec | null;
 
-export declare interface FirefoxObject {
+export interface FirefoxObject {
   runtime: {
     sendMessage: (msg: Message) => Promise<any>;
     onMessage: {
@@ -48,7 +48,7 @@ export declare interface FirefoxObject {
   };
 }
 
-export declare interface ChromeObject {
+export interface ChromeObject {
   runtime: {
     sendMessage: (msg: Message, fn?: Function) => void;
     onMessage: {
@@ -90,14 +90,15 @@ export declare interface ChromeObject {
   };
 }
 
-export declare interface TabChgInfo {
+export interface TabChgInfo {
   url: string;
   status: string;
 }
 
-export declare interface Tab {
+export interface Tab {
   url: string;
   id: number;
+  openerTabId?: number;
 }
 
 export interface WebReqDetail {
@@ -105,21 +106,21 @@ export interface WebReqDetail {
   url: string;
 }
 
-export declare interface RedirectSpec {
+export interface RedirectSpec {
   redirectUrl: string;
 }
 
-export declare interface IconSpec {
+export interface IconSpec {
   tabId: number;
   path: string;
 }
 
-export declare interface TitleSpec {
+export interface TitleSpec {
   tabId: number;
   title: string;
 }
 
-export declare interface Sender {
+export interface Sender {
   tab: Tab;
 }
 
