@@ -3,6 +3,7 @@ import {
   isChrome,
   isFirefox,
   Tab,
+  WebReqDetail,
   TabChgInfo,
   RedirectSpec,
   Sender,
@@ -26,7 +27,7 @@ let numAllowed = 0;
 
 let suffixableDomains = new Set(["co", "gov"]);
 
-function imageListener(details: Tab): RedirectSpec | null {
+function imageListener(details: WebReqDetail): RedirectSpec | null {
   // If the request is from an allowed tab, don't block it.
   if (
     details.tabId === -1 ||

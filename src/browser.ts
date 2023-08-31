@@ -2,7 +2,7 @@
 
 import {Message, Options} from "./types";
 
-export type RedirectFunc = (t: Tab) => RedirectSpec | null;
+export type RedirectFunc = (d: WebReqDetail) => RedirectSpec | null;
 
 export declare interface FirefoxObject {
   runtime: {
@@ -96,9 +96,13 @@ export declare interface TabChgInfo {
 }
 
 export declare interface Tab {
-  tabId: number;
   url: string;
   id: number;
+}
+
+export interface WebReqDetail {
+  tabId: number;
+  url: string;
 }
 
 export declare interface RedirectSpec {
