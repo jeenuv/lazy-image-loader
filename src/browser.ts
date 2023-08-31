@@ -35,6 +35,9 @@ export interface FirefoxObject {
         o: {properties: string[]}
       ) => void;
     };
+    onCreated: {
+      addListener: (f: (t: Tab) => void) => void;
+    };
   };
   webRequest: {
     onBeforeRequest: {
@@ -76,6 +79,9 @@ export interface ChromeObject {
     };
     onUpdated: {
       addListener: (f: (i: number, c: TabChgInfo) => void) => void;
+    };
+    onCreated: {
+      addListener: (f: (t: Tab) => void) => void;
     };
   };
   webRequest: {

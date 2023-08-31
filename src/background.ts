@@ -356,6 +356,14 @@ async function backgroundInit() {
     overriddenTabs.delete(tabId);
   });
 
+  // When a tab is created, inherit its allowances from the opener tab.
+  browser.tabs.onCreated.addListener((tab: Tab) => {
+    if (tab.openerTabId && overriddenTabs.has(tab.openerTabId)) {
+      overriddenTabs.add(tab.id);
+      console.log(`Allowing tab ${tab.id} via opener ${tab.openerTabId}`);
+    }
+  });
+
   // Build a set of allowed domains from local store, if it exists.
   let ret = await getLocalStorage();
   if (Object.keys(ret).length === 0) {
