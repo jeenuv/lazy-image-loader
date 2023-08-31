@@ -1,35 +1,15 @@
 import {Message, PopupStatus} from "./types";
 import {isChrome, isFirefox, getBrowserObject} from "./browser";
 
-let browser = getBrowserObject();
-
-let extensionCheckbox: HTMLInputElement;
-let siteCheckbox: HTMLInputElement;
-let tabCheckbox: HTMLInputElement;
-let pageContent: HTMLElement;
-
-function readyPage(stat: PopupStatus): void {
-  extensionCheckbox.checked = stat.extensionEnabled;
-  siteCheckbox.checked = stat.siteEnabled;
-  tabCheckbox.checked = stat.tabEnabled;
-
-  pageContent.style.display = "block";
-  siteCheckbox.disabled = !stat.extensionEnabled;
-  tabCheckbox.disabled = !stat.extensionEnabled;
-
-  document.getElementById("num-blocked")!.innerText =
-    stat.numBlocked.toString();
-  document.getElementById("num-allowed")!.innerText =
-    stat.numAllowed.toString();
-}
-
 window.addEventListener("load", async () => {
-  extensionCheckbox = document.getElementById(
+  let browser = getBrowserObject();
+
+  let extensionCheckbox = document.getElementById(
     "extension-enable"
   ) as HTMLInputElement;
-  siteCheckbox = document.getElementById("site-enable") as HTMLInputElement;
-  tabCheckbox = document.getElementById("tab-enable") as HTMLInputElement;
-  pageContent = document.getElementById("page-content")!;
+  let siteCheckbox = document.getElementById("site-enable") as HTMLInputElement;
+  let pageContent = document.getElementById("page-content")!;
+  let tabCheckbox = document.getElementById("tab-enable") as HTMLInputElement;
 
   extensionCheckbox.addEventListener("click", () => {
     let msg: Message = {
@@ -50,6 +30,21 @@ window.addEventListener("load", async () => {
     let msg: Message = {header: "tab-enable", payload: tabCheckbox.checked};
     browser.runtime.sendMessage(msg);
   });
+
+  function readyPage(stat: PopupStatus): void {
+    extensionCheckbox.checked = stat.extensionEnabled;
+    siteCheckbox.checked = stat.siteEnabled;
+    tabCheckbox.checked = stat.tabEnabled;
+
+    pageContent.style.display = "block";
+    siteCheckbox.disabled = !stat.extensionEnabled;
+    tabCheckbox.disabled = !stat.extensionEnabled;
+
+    document.getElementById("num-blocked")!.innerText =
+      stat.numBlocked.toString();
+    document.getElementById("num-allowed")!.innerText =
+      stat.numAllowed.toString();
+  }
 
   let msg: Message = {header: "get-status"};
   if (isChrome(browser)) {
