@@ -19,10 +19,6 @@ function getSrc(img: LazyImg): string | null {
     }
   }
 
-  if (src) {
-    img.originalUrl = src;
-  }
-
   return src;
 }
 
@@ -47,6 +43,10 @@ async function lazyLoad(e: MouseEvent) {
     }
 
     let originalUrl = getSrc(img);
+    if (originalUrl) {
+      img.originalUrl = originalUrl;
+    }
+
     if (originalUrl === null) {
       console.warn("lazy: image has no src or srcset");
       return;
@@ -175,6 +175,24 @@ window.addEventListener("DOMContentLoaded", () => {
       unregisterMouse();
     }
   });
+
+  window.setTimeout(() => {
+    // Assign images' alt text or its path as its title so that the latter will be
+    // displayed upon hover.
+    document.querySelectorAll("img").forEach(img => {
+      if (!img.title) {
+        if (img.alt) {
+          img.title = img.alt;
+        } else {
+          let src = getSrc(img);
+          if (src) {
+            let split = decodeURIComponent(src).split("/");
+            img.title = split[split.length - 1].split("?")[0];
+          }
+        }
+      }
+    });
+  }, 1000);
 
   // Send an online message to background script
   browser.runtime.sendMessage({header: "online"});
