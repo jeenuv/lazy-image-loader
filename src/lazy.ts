@@ -27,7 +27,7 @@ async function lazyLoad(e: MouseEvent) {
   let under = document.elementsFromPoint(e.clientX, e.clientY);
   for (let i = 0; i < under.length; i++) {
     let img = under[i] as LazyImg;
-    if (img.tagName !== "IMG") {
+    if (img.tagName.toLowerCase() !== "img") {
       continue;
     }
 
@@ -48,8 +48,19 @@ async function lazyLoad(e: MouseEvent) {
     }
 
     if (originalUrl === null) {
-      console.warn("lazy: image has no src or srcset");
-      return;
+      // See if the img is inside a picture.
+      let picture = img.parentElement;
+      if (picture && picture.tagName.toLowerCase() === "picture") {
+        let sources = picture.querySelectorAll("source");
+        if (sources.length > 0 && sources[0].srcset) {
+          originalUrl = sources[0].srcset;
+        }
+      }
+
+      if (originalUrl === null) {
+        console.warn("lazy: image has no src or srcset");
+        return false;
+      }
     }
 
     if (img.requestedAt) {
@@ -69,8 +80,8 @@ async function lazyLoad(e: MouseEvent) {
 
       // If the img is contained within a picture element, the source siblings
       // seem to have priority. So remove them too.
-      let picture = img.closest("picture");
-      if (picture) {
+      let picture = img.parentElement;
+      if (picture && picture.tagName.toLowerCase() === "picture") {
         picture.querySelectorAll("source").forEach(src => src.remove());
       }
 
