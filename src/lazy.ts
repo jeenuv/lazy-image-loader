@@ -11,7 +11,13 @@ function getSrc(img: LazyImg): string | null {
     return img.originalUrl;
   }
 
-  if (img.src !== "") {
+  // When we've <img src="" ...>, img.src returns the value of the page's URL,
+  // not the empty string. So, test the src attribute's value first before
+  // accessing the property.
+  let srcAttr = img.getAttribute("src");
+  if (srcAttr !== null && srcAttr !== "") {
+    // The retrieved attribute value might not resolve to a URL, but the value
+    // of src property is always resolved to a URL.
     src = img.src;
   } else if (img.srcset) {
     let sources = img.srcset.split(",").map(s => s.split(" ")[0]);
