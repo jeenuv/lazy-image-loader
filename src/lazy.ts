@@ -20,9 +20,20 @@ function getSrc(img: LazyImg): string | null {
     // of src property is always resolved to a URL.
     src = img.src;
   } else if (img.srcset) {
-    let sources = img.srcset.split(",").map(s => s.split(" ")[0]);
+    let sources = img.srcset
+      .split(" ")
+      .filter(s => {
+        try {
+          new URL(s);
+          return true;
+        } catch {
+          return false;
+        }
+      })
+      .map(s => s.trim());
     if (sources.length > 0) {
-      src = sources[0];
+      // Pick the image URL at the median resolution
+      src = sources[Math.trunc((sources.length - 1) / 2)];
     }
   }
 
