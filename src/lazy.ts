@@ -11,15 +11,7 @@ function getSrc(img: LazyImg): string | null {
     return img.originalUrl;
   }
 
-  // When we've <img src="" ...>, img.src returns the value of the page's URL,
-  // not the empty string. So, test the src attribute's value first before
-  // accessing the property.
-  let srcAttr = img.getAttribute("src");
-  if (srcAttr !== null && srcAttr !== "") {
-    // The retrieved attribute value might not resolve to a URL, but the value
-    // of src property is always resolved to a URL.
-    src = img.src;
-  } else if (img.srcset) {
+  if (img.srcset) {
     let sources = img.srcset
       .split(" ")
       .filter(s => {
@@ -34,6 +26,18 @@ function getSrc(img: LazyImg): string | null {
     if (sources.length > 0) {
       // Pick the image URL at the median resolution
       src = sources[Math.trunc((sources.length - 1) / 2)];
+    }
+  }
+
+  if (!src) {
+    // When we've <img src="" ...>, img.src returns the value of the page's URL,
+    // not the empty string. So, test the src attribute's value first before
+    // accessing the property.
+    let srcAttr = img.getAttribute("src");
+    if (srcAttr !== null && srcAttr !== "") {
+      // The retrieved attribute value might not resolve to a URL, but the value
+      // of src property is always resolved to a URL.
+      src = img.src;
     }
   }
 
