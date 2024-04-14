@@ -52,7 +52,13 @@ async function lazyLoadImage(under: Element[]): Promise<boolean> {
       continue;
     }
 
-    if (img.src.startsWith("data:") && img.src !== loadingImage) {
+    if (
+      img.src.startsWith("data:") &&
+      // We attempted to load the image
+      img.originalUrl &&
+      // Image loading was successful
+      img.src !== loadingImage
+    ) {
       console.log("lazy: image has already been loaded");
 
       // The srcset attribute, if present on the node--in case it's re-added by
